@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if rutina %}Editar{% else %}Nueva{% endif %} Rutina - GymFlow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">🏋️ GymFlow</a>
+            <div class="navbar-user">
+                <span>{{ session.nombre }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary">Salir</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-narrow">
+        <div style="margin-bottom: 2rem;">
+            <a href="{{ url_for('alumnos') }}" class="btn btn-secondary">← Volver</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    {% if rutina %}✏️ Editar Rutina{% else %}📋 Nueva Rutina{% endif %}
+                </h2>
+                <p style="color: var(--gray-600); margin-top: 0.5rem;">
+                    Para: <strong>{{ alumno.nombre }}</strong>
+                </p>
+            </div>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label class="form-label">Nombre de la Rutina *</label>
+                    <input type="text" name="nombre" class="form-input" 
+                           placeholder="Ej: Hipertrofia - Febrero 2026" 
+                           value="{% if rutina %}{{ rutina.nombre }}{% endif %}"
+                           required autofocus>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Desde *</label>
+                        <input type="date" name="fecha_inicio" class="form-input" 
+                               value="{% if rutina %}{{ rutina.fecha_inicio }}{% else %}{{ hoy }}{% endif %}"
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Hasta *</label>
+                        <input type="date" name="fecha_fin" class="form-input" 
+                               value="{% if rutina %}{{ rutina.fecha_fin }}{% else %}{{ fin_default }}{% endif %}"
+                               required>
+                    </div>
+                </div>
+                
+                <hr style="margin: 2rem 0; border: none; border-top: 2px solid var(--gray-200);">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>💪 Ejercicios</h3>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="agregarEjercicio()">
+                        ➕ Agregar Ejercicio
+                    </button>
+                </div>
+                
+                <div id="ejercicios-container" class="ejercicios-list">
+                    {% if ejercicios %}
+                        {% for ejercicio in ejercicios %}
+                        <div class="ejercicio-form-item" id="ejercicio-{{ loop.index0 }}">
+                            <div class="ejercicio-form-header">
+                                <span class="ejercicio-form-title">Ejercicio {{ loop.index }}</span>
+                                <button type="button" class="btn btn-danger btn-sm" 
+                                        onclick="eliminarEjercicio({{ loop.index0 }})">
+                                    Eliminar
+                                </button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Nombre del ejercicio</label>
+                                <input type="text" name="ejercicio_nombre_{{ loop.index0 }}" 
+                                       class="form-input" value="{{ ejercicio.nombre }}" required>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Series</label>
+                                    <input type="number" name="ejercicio_series_{{ loop.index0 }}" 
+                                           class="form-input" value="{{ ejercicio.series }}" min="1" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Repeticiones</label>
+                                    <input type="text" name="ejercicio_reps_{{ loop.index0 }}" 
+                                           class="form-input" value="{{ ejercicio.repeticiones }}" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Descanso</label>
+                                    <input type="text" name="ejercicio_descanso_{{ loop.index0 }}" 
+                                           class="form-input" value="{{ ejercicio.descanso }}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Notas (opcional)</label>
+                                <textarea name="ejercicio_notas_{{ loop.index0 }}" 
+                                          class="form-textarea" rows="2">{{ ejercicio.notas }}</textarea>
+                            </div>
+                        </div>
+                        <script>ejercicioCount = {{ loop.length }};</script>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <hr style="margin: 2rem 0; border: none; border-top: 2px solid var(--gray-200);">
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        {% if rutina %}💾 Guardar Cambios{% else %}📋 Crear Rutina{% endif %}
+                    </button>
+                    <a href="{{ url_for('alumnos') }}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

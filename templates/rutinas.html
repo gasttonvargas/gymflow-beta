@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rutinas - GymFlow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">🏋️ GymFlow</a>
+            <div class="navbar-user">
+                <span>{{ session.nombre }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary">Salir</a>
+            </div>
+        </div>
+    </nav>
+    
+    {% if get_flashed_messages() %}
+        <div class="flash-messages">
+            {% for message in get_flashed_messages(with_categories=true) %}
+                <div class="flash flash-{{ message[0] }}">{{ message[1] }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>📋 Rutinas</h1>
+            <a href="{{ url_for('alumnos') }}" class="btn btn-secondary">Ver Alumnos</a>
+        </div>
+        
+        {% if rutinas %}
+            <div>
+                {% for rutina in rutinas %}
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">{{ rutina.nombre }}</h3>
+                                <p style="color: var(--gray-600); margin-top: 0.25rem;">
+                                    Para: <strong>{{ rutina.alumno_nombre }}</strong>
+                                </p>
+                            </div>
+                            
+                            <div>
+                                {% if rutina.estado == 'vigente' %}
+                                    <span class="badge badge-success">Vigente</span>
+                                {% elif rutina.estado == 'por_vencer' %}
+                                    <span class="badge badge-warning">Por Vencer</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Vencida</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <p style="color: var(--gray-600);">
+                                📅 Desde: {{ rutina.fecha_inicio }} | Hasta: {{ rutina.fecha_fin }}
+                            </p>
+                            
+                            {% if rutina.dias_restantes >= 0 %}
+                                <p style="color: var(--gray-600);">
+                                    ⏰ Quedan <strong>{{ rutina.dias_restantes }} días</strong>
+                                </p>
+                            {% else %}
+                                <p style="color: var(--danger);">
+                                    ⏰ Venció hace <strong>{{ rutina.dias_restantes|abs }} días</strong>
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="btn-group">
+                            <a href="{{ url_for('alumno_ver', id=rutina.alumno_id) }}" 
+                               class="btn btn-sm btn-secondary" target="_blank">
+                                👁️ Ver Rutina Completa
+                            </a>
+                            <a href="{{ url_for('rutina_editar', id=rutina.id) }}" 
+                               class="btn btn-sm btn-secondary">
+                                ✏️ Editar
+                            </a>
+                            <a href="{{ url_for('rutina_eliminar', id=rutina.id) }}" 
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('¿Seguro que querés eliminar esta rutina?')">
+                                🗑️ Eliminar
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <p>No hay rutinas creadas aún</p>
+                <a href="{{ url_for('alumnos') }}" class="btn btn-primary" style="margin-top: 1rem;">
+                    Ir a Alumnos para crear rutinas
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

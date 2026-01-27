@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumnos - GymFlow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">🏋️ GymFlow</a>
+            <div class="navbar-user">
+                <span>{{ session.nombre }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary">Salir</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Mensajes flash -->
+    {% if get_flashed_messages() %}
+        <div class="flash-messages">
+            {% for message in get_flashed_messages(with_categories=true) %}
+                <div class="flash flash-{{ message[0] }}">{{ message[1] }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>👥 Alumnos</h1>
+            <a href="{{ url_for('alumno_nuevo') }}" class="btn btn-primary">➕ Nuevo Alumno</a>
+        </div>
+        
+        <!-- Filtros y búsqueda -->
+        <div class="card">
+            <form method="GET" action="{{ url_for('alumnos') }}">
+                <div class="filters-bar">
+                    <input type="text" name="busqueda" class="form-input search-input" 
+                           placeholder="🔍 Buscar por nombre..." value="{{ busqueda }}">
+                    
+                    <select name="filtro" class="form-select" onchange="this.form.submit()">
+                        <option value="todos" {% if filtro == 'todos' %}selected{% endif %}>
+                            Todos
+                        </option>
+                        <option value="activos" {% if filtro == 'activos' %}selected{% endif %}>
+                            Solo Activos
+                        </option>
+                        <option value="vencidos" {% if filtro == 'vencidos' %}selected{% endif %}>
+                            Solo Vencidos
+                        </option>
+                    </select>
+                    
+                    <button type="submit" class="btn btn-secondary">Buscar</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Lista de alumnos -->
+        {% if alumnos %}
+            <div style="margin-top: 1.5rem;">
+                {% for alumno in alumnos %}
+                    <div class="alumno-item {{ alumno.estado }}">
+                        <div class="alumno-header">
+                            <div>
+                                <div class="alumno-nombre">
+                                    {% if alumno.estado == 'activo' %}✅{% endif %}
+                                    {% if alumno.estado == 'por_vencer' %}⚠️{% endif %}
+                                    {% if alumno.estado == 'vencido' %}❌{% endif %}
+                                    {{ alumno.nombre }}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                {% if alumno.estado == 'activo' %}
+                                    <span class="badge badge-success">Activo</span>
+                                {% elif alumno.estado == 'por_vencer' %}
+                                    <span class="badge badge-warning">Por Vencer</span>
+                                {% else %}
+                                    <span class="badge badge-danger">Vencido</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="alumno-info">
+                            📱 {{ alumno.telefono }}
+                        </div>
+                        
+                        <div class="alumno-info">
+                            {% if alumno.dias_restantes >= 0 %}
+                                📅 Vence en <strong>{{ alumno.dias_restantes }} días</strong> ({{ alumno.fecha_vencimiento }})
+                            {% else %}
+                                📅 Vencido hace <strong>{{ alumno.dias_restantes|abs }} días</strong>
+                            {% endif %}
+                        </div>
+                        
+                        {% if alumno.notas %}
+                            <div class="alumno-info">
+                                💡 {{ alumno.notas }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="alumno-actions">
+                            <a href="{{ url_for('alumno_ver', id=alumno.id) }}" 
+                               class="btn btn-sm btn-secondary" target="_blank">
+                                👁️ Ver Rutina
+                            </a>
+                            <a href="{{ url_for('rutina_nueva', alumno_id=alumno.id) }}" 
+                               class="btn btn-sm btn-secondary">
+                                📋 Nueva Rutina
+                            </a>
+                            <a href="{{ url_for('alumno_editar', id=alumno.id) }}" 
+                               class="btn btn-sm btn-secondary">
+                                ✏️ Editar
+                            </a>
+                            <a href="{{ url_for('alumno_eliminar', id=alumno.id) }}" 
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('¿Seguro que querés eliminar a {{ alumno.nombre }}?')">
+                                🗑️ Eliminar
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">🤷</div>
+                <p>No se encontraron alumnos</p>
+                <a href="{{ url_for('alumno_nuevo') }}" class="btn btn-primary" style="margin-top: 1rem;">
+                    Agregar Primer Alumno
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

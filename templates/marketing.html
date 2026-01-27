@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing - GymFlow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">🏋️ GymFlow</a>
+            <div class="navbar-user">
+                <span>{{ session.nombre }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary">Salir</a>
+            </div>
+        </div>
+    </nav>
+    
+    {% if get_flashed_messages() %}
+        <div class="flash-messages">
+            {% for message in get_flashed_messages(with_categories=true) %}
+                <div class="flash flash-{{ message[0] }}">{{ message[1] }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1>📱 Marketing y Comunicación</h1>
+                <p style="color: var(--gray-600); margin-top: 0.5rem;">
+                    Gestiona tus campañas y mensajes a alumnos
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Dashboard</a>
+                <a href="{{ url_for('marketing_nueva') }}" class="btn btn-primary">➕ Nueva Campaña</a>
+            </div>
+        </div>
+        
+        <!-- Estadísticas rápidas -->
+        <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+            <div class="metric-card">
+                <div class="metric-value">{{ total_alumnos }}</div>
+                <div class="metric-label">Total Alumnos</div>
+            </div>
+            
+            <div class="metric-card {% if alumnos_vencidos > 0 %}danger{% endif %}">
+                <div class="metric-value">{{ alumnos_vencidos }}</div>
+                <div class="metric-label">Alumnos Vencidos</div>
+            </div>
+            
+            <div class="metric-card">
+                <div class="metric-value">{{ campanas|length }}</div>
+                <div class="metric-label">Campañas Creadas</div>
+            </div>
+        </div>
+        
+        <!-- Información sobre marketing -->
+        <div class="card" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 4px solid var(--warning);">
+            <h3 style="margin-bottom: 1rem;">💡 ¿Para qué sirve el Marketing?</h3>
+            <ul style="color: var(--gray-700); line-height: 1.8; padding-left: 1.5rem;">
+                <li><strong>Recuperar alumnos vencidos:</strong> Enviá recordatorios automáticos</li>
+                <li><strong>Promociones:</strong> Anunciá descuentos o nuevas clases</li>
+                <li><strong>Fidelización:</strong> Mantené contacto con tus alumnos activos</li>
+                <li><strong>Segmentación:</strong> Enviá mensajes específicos según el estado</li>
+            </ul>
+        </div>
+        
+        <!-- Lista de campañas -->
+        {% if campanas %}
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📋 Mis Campañas</h2>
+                </div>
+                
+                {% for campana in campanas %}
+                    <div style="padding: 1.5rem; border-bottom: 1px solid var(--gray-200); {% if loop.last %}border-bottom: none;{% endif %}">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                            <div style="flex: 1;">
+                                <h3 style="font-size: 1.1rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">
+                                    {{ campana.titulo }}
+                                </h3>
+                                <p style="color: var(--gray-600); font-size: 0.9rem;">
+                                    Tipo: 
+                                    {% if campana.tipo == 'whatsapp' %}
+                                        📱 WhatsApp
+                                    {% elif campana.tipo == 'email' %}
+                                        📧 Email
+                                    {% else %}
+                                        📬 SMS
+                                    {% endif %}
+                                    | 
+                                    Destinatarios: 
+                                    {% if campana.destinatarios == 'todos' %}
+                                        👥 Todos
+                                    {% elif campana.destinatarios == 'vencidos' %}
+                                        ❌ Vencidos
+                                    {% elif campana.destinatarios == 'activos' %}
+                                        ✅ Activos
+                                    {% else %}
+                                        ⚠️ Por Vencer
+                                    {% endif %}
+                                </p>
+                                <p style="color: var(--gray-600); font-size: 0.85rem; margin-top: 0.5rem;">
+                                    Creada: {{ campana.fecha_creacion }}
+                                </p>
+                            </div>
+                            
+                            <div>
+                                {% if campana.enviado %}
+                                    <span class="badge badge-success">Enviada</span>
+                                {% else %}
+                                    <span class="badge" style="background: var(--gray-200); color: var(--gray-700);">
+                                        Borrador
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1rem;">
+                            <p style="color: var(--gray-700); font-size: 0.95rem; line-height: 1.6;">
+                                {{ campana.mensaje }}
+                            </p>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <a href="{{ url_for('marketing_preview', id=campana.id) }}" 
+                               class="btn btn-sm btn-secondary">
+                                👁️ Preview
+                            </a>
+                            <a href="{{ url_for('marketing_eliminar', id=campana.id) }}" 
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('¿Seguro que querés eliminar esta campaña?')">
+                                🗑️ Eliminar
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📱</div>
+                <p>No hay campañas creadas aún</p>
+                <a href="{{ url_for('marketing_nueva') }}" class="btn btn-primary" style="margin-top: 1rem;">
+                    Crear Primera Campaña
+                </a>
+            </div>
+        {% endif %}
+        
+        <!-- Ejemplos de campañas -->
+        <div class="card" style="margin-top: 2rem; background: var(--gray-50);">
+            <div class="card-header">
+                <h3 class="card-title">💡 Ideas de Campañas</h3>
+            </div>
+            
+            <div style="display: grid; gap: 1rem;">
+                <div style="padding: 1rem; background: white; border-radius: var(--radius-md);">
+                    <h4 style="font-weight: 600; margin-bottom: 0.5rem;">🎯 Recuperación de Vencidos</h4>
+                    <p style="color: var(--gray-600); font-size: 0.9rem;">
+                        "Hola [Nombre], te extrañamos en el gym. Tenemos una promo especial para que vuelvas: 20% off en tu renovación. ¿Hablamos?"
+                    </p>
+                </div>
+                
+                <div style="padding: 1rem; background: white; border-radius: var(--radius-md);">
+                    <h4 style="font-weight: 600; margin-bottom: 0.5rem;">🎉 Promoción para Activos</h4>
+                    <p style="color: var(--gray-600); font-size: 0.9rem;">
+                        "¡Nuevo horario de CrossFit! Martes y Jueves 19hs. Clase de prueba gratis para alumnos activos. Reservá tu lugar."
+                    </p>
+                </div>
+                
+                <div style="padding: 1rem; background: white; border-radius: var(--radius-md);">
+                    <h4 style="font-weight: 600; margin-bottom: 0.5rem;">⚠️ Recordatorio de Vencimiento</h4>
+                    <p style="color: var(--gray-600); font-size: 0.9rem;">
+                        "Hola [Nombre], tu cuota vence en 3 días. Podés renovar por este link o pasarte por el gym. ¡Gracias!"
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

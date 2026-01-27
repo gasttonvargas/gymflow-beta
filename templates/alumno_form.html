@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if alumno %}Editar{% else %}Nuevo{% endif %} Alumno - GymFlow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">🏋️ GymFlow</a>
+            <div class="navbar-user">
+                <span>{{ session.nombre }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary">Salir</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-narrow">
+        <div style="margin-bottom: 2rem;">
+            <a href="{{ url_for('alumnos') }}" class="btn btn-secondary">← Volver</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    {% if alumno %}✏️ Editar Alumno{% else %}➕ Nuevo Alumno{% endif %}
+                </h2>
+            </div>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label class="form-label">Nombre Completo *</label>
+                    <input type="text" name="nombre" class="form-input" 
+                           placeholder="Juan Pérez" 
+                           value="{% if alumno %}{{ alumno.nombre }}{% endif %}"
+                           required autofocus>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Teléfono (WhatsApp) *</label>
+                        <input type="tel" name="telefono" class="form-input" 
+                               placeholder="381-555-1234" 
+                               value="{% if alumno %}{{ alumno.telefono }}{% endif %}"
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-input" 
+                               placeholder="juan@email.com" 
+                               value="{% if alumno %}{{ alumno.email }}{% endif %}">
+                    </div>
+                </div>
+                
+                <hr style="margin: 1.5rem 0; border: none; border-top: 2px solid var(--gray-200);">
+                
+                <p style="font-weight: 600; color: var(--primary); margin-bottom: 1rem;">
+                    🔐 Acceso al Portal del Alumno
+                </p>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Usuario *</label>
+                        <input type="text" name="username" class="form-input" 
+                               placeholder="juanperez" 
+                               value="{% if alumno %}{{ alumno.username }}{% endif %}"
+                               required>
+                        <small style="color: var(--gray-600);">
+                            El alumno usará esto para ingresar
+                        </small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Contraseña *</label>
+                        <input type="text" name="password" class="form-input" 
+                               placeholder="gym123" 
+                               value="{% if alumno %}{{ alumno.password }}{% endif %}"
+                               required>
+                        <small style="color: var(--gray-600);">
+                            Recomendado: gym123 (simple de recordar)
+                        </small>
+                    </div>
+                </div>
+                
+                <hr style="margin: 1.5rem 0; border: none; border-top: 2px solid var(--gray-200);">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Fecha de Inicio *</label>
+                        <input type="date" name="fecha_inicio" id="fecha_inicio" class="form-input" 
+                               value="{% if alumno %}{{ alumno.fecha_inicio }}{% else %}{{ hoy }}{% endif %}"
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Vence el *</label>
+                        <input type="date" name="fecha_vencimiento" id="fecha_vencimiento" class="form-input" 
+                               value="{% if alumno %}{{ alumno.fecha_vencimiento }}{% else %}{{ vencimiento_default }}{% endif %}"
+                               required>
+                    </div>
+                </div>
+                
+                <!-- Botones rápidos para calcular vencimiento -->
+                {% if not alumno %}
+                <div class="form-group">
+                    <label class="form-label">Atajos de cuota:</label>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-secondary" 
+                                onclick="calcularVencimiento(1)">
+                            1 Mes
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" 
+                                onclick="calcularVencimiento(3)">
+                            3 Meses
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" 
+                                onclick="calcularVencimiento(6)">
+                            6 Meses
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="form-group">
+                    <label class="form-label">Notas (opcional)</label>
+                    <textarea name="notas" class="form-textarea" rows="3" 
+                              placeholder="Lesiones, objetivos, observaciones...">{% if alumno %}{{ alumno.notas }}{% endif %}</textarea>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        {% if alumno %}💾 Guardar Cambios{% else %}➕ Agregar Alumno{% endif %}
+                    </button>
+                    <a href="{{ url_for('alumnos') }}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

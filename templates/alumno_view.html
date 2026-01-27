@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Rutina - GymFlow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="alumno-view-container">
+        <div class="alumno-view-header">
+            <h1>🏋️ GymFlow</h1>
+            <p style="color: var(--gray-600);">Tu Rutina Personal</p>
+        </div>
+        
+        <div class="container-narrow">
+            <!-- Saludo y estado de cuota -->
+            <div class="status-card {{ estado_alumno }}">
+                <div class="status-icon">
+                    {% if estado_alumno == 'activo' %}
+                        ✅
+                    {% elif estado_alumno == 'por_vencer' %}
+                        ⚠️
+                    {% else %}
+                        ❌
+                    {% endif %}
+                </div>
+                
+                <h2 style="margin-bottom: 1rem;">Hola {{ alumno.nombre }} 👋</h2>
+                
+                {% if estado_alumno == 'activo' %}
+                    <p style="color: var(--success); font-weight: 600; font-size: 1.1rem;">
+                        ✅ Tu cuota está al día
+                    </p>
+                    <p style="color: var(--gray-600); margin-top: 0.5rem;">
+                        Vence en: <strong>{{ dias_cuota }} días</strong> ({{ alumno.fecha_vencimiento }})
+                    </p>
+                {% elif estado_alumno == 'por_vencer' %}
+                    <p style="color: var(--warning); font-weight: 600; font-size: 1.1rem;">
+                        ⚠️ Tu cuota vence pronto
+                    </p>
+                    <p style="color: var(--gray-600); margin-top: 0.5rem;">
+                        Quedan: <strong>{{ dias_cuota }} días</strong>
+                    </p>
+                {% else %}
+                    <p style="color: var(--danger); font-weight: 600; font-size: 1.1rem;">
+                        ❌ Tu cuota está vencida
+                    </p>
+                    <p style="color: var(--gray-600); margin-top: 0.5rem;">
+                        Vencida hace: <strong>{{ dias_cuota|abs }} días</strong>
+                    </p>
+                {% endif %}
+            </div>
+            
+            <!-- Rutina -->
+            {% if rutina %}
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">📋 {{ rutina.nombre }}</h3>
+                            <p style="color: var(--gray-600); margin-top: 0.5rem;">
+                                Válida hasta: {{ rutina.fecha_fin }}
+                            </p>
+                        </div>
+                        
+                        <div>
+                            {% if rutina.estado == 'vigente' %}
+                                <span class="badge badge-success">Vigente</span>
+                            {% elif rutina.estado == 'por_vencer' %}
+                                <span class="badge badge-warning">Por Vencer</span>
+                            {% else %}
+                                <span class="badge badge-danger">Vencida</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if rutina.dias_restantes >= 0 %}
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">
+                            ⏰ Quedan <strong>{{ rutina.dias_restantes }} días</strong> de rutina
+                        </p>
+                    {% else %}
+                        <p style="color: var(--danger); margin-bottom: 1.5rem;">
+                            ⏰ Esta rutina venció hace {{ rutina.dias_restantes|abs }} días. 
+                            Consultá con tu profe por una nueva.
+                        </p>
+                    {% endif %}
+                    
+                    <div style="margin-top: 1.5rem;">
+                        {% for ejercicio in rutina.ejercicios %}
+                            <div class="ejercicio-item">
+                                <div class="ejercicio-header">
+                                    <span class="ejercicio-nombre">
+                                        {{ loop.index }}️⃣ {{ ejercicio.nombre }}
+                                    </span>
+                                </div>
+                                
+                                <div class="ejercicio-specs">
+                                    <div class="ejercicio-spec">
+                                        <strong>Series:</strong> {{ ejercicio.series }}
+                                    </div>
+                                    <div class="ejercicio-spec">
+                                        <strong>Repeticiones:</strong> {{ ejercicio.repeticiones }}
+                                    </div>
+                                    <div class="ejercicio-spec">
+                                        <strong>Descanso:</strong> {{ ejercicio.descanso }}
+                                    </div>
+                                </div>
+                                
+                                {% if ejercicio.notas %}
+                                    <div class="ejercicio-notas">
+                                        💡 {{ ejercicio.notas }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>Todavía no tenés una rutina asignada</p>
+                        <p style="color: var(--gray-600); font-size: 0.9rem; margin-top: 0.5rem;">
+                            Consultá con tu profesor
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Footer con contacto -->
+            <div class="card" style="margin-top: 2rem; text-align: center; background: var(--gray-50);">
+                <p style="color: var(--gray-600); margin-bottom: 1rem;">
+                    ❓ ¿Tenés dudas sobre tu rutina?
+                </p>
+                <p style="font-weight: 600; color: var(--primary);">
+                    Hablá con tu profesor
+                </p>
+            </div>
+            
+            <!-- Nota técnica -->
+            <div style="text-align: center; margin-top: 2rem; padding: 2rem; color: var(--gray-600); font-size: 0.85rem;">
+                <p>🏋️ <strong>GymFlow</strong> - Sistema de Gestión para Gimnasios</p>
+                <p style="margin-top: 0.5rem;">Guardá este link para ver tu rutina siempre que quieras</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

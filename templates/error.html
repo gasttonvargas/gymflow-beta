@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - GymFlow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="empty-state">
+                <div class="empty-state-icon">⚠️</div>
+                <h2 style="margin-bottom: 1rem;">Ups... algo salió mal</h2>
+                <p style="color: var(--gray-600);">
+                    {{ mensaje }}
+                </p>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary" style="margin-top: 2rem;">
+                    Volver al inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

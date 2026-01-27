@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Portal - GymFlow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar para alumno -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ url_for('alumno_portal') }}" class="navbar-brand">
+                🏋️ GymFlow
+            </a>
+            <div class="navbar-user">
+                <span>{{ session.alumno_nombre }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary">Salir</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="alumno-view-container">
+        <div class="container-narrow">
+            <!-- Bienvenida -->
+            <div class="card" style="margin-bottom: 2rem; text-align: center; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white;">
+                <h2 style="color: white; margin-bottom: 0.5rem;">¡Hola {{ alumno.nombre }}! 👋</h2>
+                <p style="opacity: 0.9;">Bienvenido a tu portal personal</p>
+            </div>
+            
+            <!-- Estado de cuota -->
+            <div class="status-card {{ estado_alumno }}">
+                <div class="status-icon">
+                    {% if estado_alumno == 'activo' %}
+                        ✅
+                    {% elif estado_alumno == 'por_vencer' %}
+                        ⚠️
+                    {% else %}
+                        ❌
+                    {% endif %}
+                </div>
+                
+                <h3 style="margin-bottom: 1rem;">Estado de Mi Cuota</h3>
+                
+                {% if estado_alumno == 'activo' %}
+                    <p style="color: var(--success); font-weight: 600; font-size: 1.1rem;">
+                        ✅ Tu cuota está al día
+                    </p>
+                    <p style="color: var(--gray-600); margin-top: 0.5rem;">
+                        Vence en: <strong>{{ dias_cuota }} días</strong> ({{ alumno.fecha_vencimiento }})
+                    </p>
+                {% elif estado_alumno == 'por_vencer' %}
+                    <p style="color: var(--warning); font-weight: 600; font-size: 1.1rem;">
+                        ⚠️ Tu cuota vence pronto
+                    </p>
+                    <p style="color: var(--gray-600); margin-top: 0.5rem;">
+                        Quedan: <strong>{{ dias_cuota }} días</strong>
+                    </p>
+                    <p style="margin-top: 1rem;">
+                        <a href="tel:{{ alumno.telefono }}" class="btn btn-warning">
+                            Renovar Ahora
+                        </a>
+                    </p>
+                {% else %}
+                    <p style="color: var(--danger); font-weight: 600; font-size: 1.1rem;">
+                        ❌ Tu cuota está vencida
+                    </p>
+                    <p style="color: var(--gray-600); margin-top: 0.5rem;">
+                        Vencida hace: <strong>{{ dias_cuota|abs }} días</strong>
+                    </p>
+                    <p style="margin-top: 1rem;">
+                        <a href="tel:{{ alumno.telefono }}" class="btn btn-danger">
+                            Contactar para Renovar
+                        </a>
+                    </p>
+                {% endif %}
+            </div>
+            
+            <!-- Mis Datos -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">📋 Mis Datos</h3>
+                </div>
+                
+                <div style="display: grid; gap: 1rem;">
+                    <div>
+                        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 0.25rem;">
+                            📱 Teléfono
+                        </p>
+                        <p style="font-weight: 600;">{{ alumno.telefono }}</p>
+                    </div>
+                    
+                    {% if alumno.email %}
+                    <div>
+                        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 0.25rem;">
+                            📧 Email
+                        </p>
+                        <p style="font-weight: 600;">{{ alumno.email }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div>
+                        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 0.25rem;">
+                            📅 Fecha de Inicio
+                        </p>
+                        <p style="font-weight: 600;">{{ alumno.fecha_inicio }}</p>
+                    </div>
+                    
+                    <div>
+                        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 0.25rem;">
+                            👤 Usuario
+                        </p>
+                        <p style="font-weight: 600;">{{ alumno.username }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Rutina -->
+            {% if rutina %}
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="card-title">💪 Mi Rutina Actual</h3>
+                            <p style="color: var(--gray-600); margin-top: 0.5rem;">
+                                {{ rutina.nombre }}
+                            </p>
+                        </div>
+                        
+                        <div>
+                            {% if rutina.estado == 'vigente' %}
+                                <span class="badge badge-success">Vigente</span>
+                            {% elif rutina.estado == 'por_vencer' %}
+                                <span class="badge badge-warning">Por Vencer</span>
+                            {% else %}
+                                <span class="badge badge-danger">Vencida</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if rutina.dias_restantes >= 0 %}
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">
+                            ⏰ Quedan <strong>{{ rutina.dias_restantes }} días</strong> de rutina
+                            <br>
+                            <small>Válida hasta: {{ rutina.fecha_fin }}</small>
+                        </p>
+                    {% else %}
+                        <p style="color: var(--danger); margin-bottom: 1.5rem;">
+                            ⏰ Esta rutina venció hace {{ rutina.dias_restantes|abs }} días. 
+                            Consultá con tu profe por una nueva.
+                        </p>
+                    {% endif %}
+                    
+                    <div style="margin-top: 1.5rem;">
+                        {% for ejercicio in rutina.ejercicios %}
+                            <div class="ejercicio-item">
+                                <div class="ejercicio-header">
+                                    <span class="ejercicio-nombre">
+                                        {{ loop.index }}️⃣ {{ ejercicio.nombre }}
+                                    </span>
+                                </div>
+                                
+                                <div class="ejercicio-specs">
+                                    <div class="ejercicio-spec">
+                                        <strong>Series:</strong> {{ ejercicio.series }}
+                                    </div>
+                                    <div class="ejercicio-spec">
+                                        <strong>Repeticiones:</strong> {{ ejercicio.repeticiones }}
+                                    </div>
+                                    <div class="ejercicio-spec">
+                                        <strong>Descanso:</strong> {{ ejercicio.descanso }}
+                                    </div>
+                                </div>
+                                
+                                {% if ejercicio.notas %}
+                                    <div class="ejercicio-notas">
+                                        💡 {{ ejercicio.notas }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>Todavía no tenés una rutina asignada</p>
+                        <p style="color: var(--gray-600); font-size: 0.9rem; margin-top: 0.5rem;">
+                            Consultá con tu profesor
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Ayuda -->
+            <div class="card" style="background: var(--gray-50); text-align: center;">
+                <p style="color: var(--gray-600); margin-bottom: 1rem;">
+                    ❓ ¿Tenés dudas o consultas?
+                </p>
+                <p style="font-weight: 600; color: var(--primary); margin-bottom: 1rem;">
+                    Hablá con tu profesor
+                </p>
+                {% if alumno.telefono %}
+                <a href="https://wa.me/{{ alumno.telefono.replace('-', '').replace(' ', '') }}" 
+                   class="btn btn-secondary" target="_blank">
+                    📱 Enviar WhatsApp
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

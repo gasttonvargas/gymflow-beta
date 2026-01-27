@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Campaña - GymFlow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">🏋️ GymFlow</a>
+            <div class="navbar-user">
+                <span>{{ session.nombre }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary">Salir</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-narrow">
+        <div style="margin-bottom: 2rem;">
+            <a href="{{ url_for('marketing') }}" class="btn btn-secondary">← Volver</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📱 Nueva Campaña de Marketing</h2>
+            </div>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label class="form-label">Título de la Campaña *</label>
+                    <input type="text" name="titulo" class="form-input" 
+                           placeholder="Ej: Promo Septiembre 2026" 
+                           required autofocus>
+                    <small style="color: var(--gray-600);">
+                        Este título es solo para tu referencia interna
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Tipo de Envío *</label>
+                    <select name="tipo" class="form-select" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="whatsapp">📱 WhatsApp (Recomendado)</option>
+                        <option value="email">📧 Email</option>
+                        <option value="sms">📬 SMS</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Destinatarios *</label>
+                    <select name="destinatarios" class="form-select" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="todos">👥 Todos los alumnos ({{ stats.todos }})</option>
+                        <option value="activos">✅ Solo Activos ({{ stats.activos }})</option>
+                        <option value="vencidos">❌ Solo Vencidos ({{ stats.vencidos }})</option>
+                        <option value="por_vencer">⚠️ Por Vencer ({{ stats.por_vencer }})</option>
+                    </select>
+                    <small style="color: var(--gray-600);">
+                        Elegí a quién querés enviar este mensaje
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Mensaje *</label>
+                    <textarea name="mensaje" class="form-textarea" rows="6" 
+                              placeholder="Escribí tu mensaje aquí..." required></textarea>
+                    <small style="color: var(--gray-600);">
+                        💡 Tip: Usá un tono amigable y directo. Incluí un llamado a la acción claro.
+                    </small>
+                </div>
+                
+                <!-- Templates sugeridos -->
+                <div style="background: var(--gray-50); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                    <p style="font-weight: 600; margin-bottom: 0.5rem; color: var(--primary);">
+                        📝 Templates Sugeridos:
+                    </p>
+                    <div style="display: grid; gap: 0.5rem;">
+                        <button type="button" class="btn btn-sm btn-secondary" 
+                                onclick="document.querySelector('textarea[name=mensaje]').value = 'Hola! Te recordamos que tu cuota vence pronto. Podés renovar pasándote por el gym o por este link. ¡Gracias!'">
+                            Recordatorio de Vencimiento
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" 
+                                onclick="document.querySelector('textarea[name=mensaje]').value = 'Te extrañamos! Tenemos una promo especial: 20% OFF en tu renovación si volvés esta semana. ¿Hablamos?'">
+                            Recuperación de Vencidos
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary" 
+                                onclick="document.querySelector('textarea[name=mensaje]').value = 'Nueva clase de Funcional! Martes y Jueves 19hs. Anotate gratis si sos alumno activo. Cupos limitados!'">
+                            Nueva Clase/Actividad
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        💾 Crear Campaña
+                    </button>
+                    <a href="{{ url_for('marketing') }}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Información adicional -->
+        <div class="card" style="margin-top: 2rem; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid #3b82f6;">
+            <h3 style="margin-bottom: 1rem; color: #1e40af;">ℹ️ Importante</h3>
+            <ul style="color: #1e40af; line-height: 1.8; padding-left: 1.5rem;">
+                <li><strong>Esta es una versión BETA:</strong> Los mensajes se guardan pero no se envían automáticamente</li>
+                <li><strong>Próxima versión:</strong> Integración con WhatsApp Business API para envío real</li>
+                <li><strong>Por ahora:</strong> Usá las campañas como plantillas y copiá/pegá en WhatsApp</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

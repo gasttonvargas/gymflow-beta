@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <title>GymFlow - Sistema de Gestión para Gimnasios</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="60" fill="none" stroke="rgba(245,158,11,0.1)" stroke-width="1"/></svg>');
+            opacity: 0.5;
+        }
+        
+        .hero-content {
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-title {
+            font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: 800;
+            color: white;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            line-height: 1.1;
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .access-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        
+        .access-card {
+            background: white;
+            padding: 2.5rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--accent);
+        }
+        
+        .access-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+        
+        .access-icon {
+            font-size: clamp(3rem, 10vw, 4rem);
+            margin-bottom: 1.5rem;
+        }
+        
+        .access-title {
+            font-size: clamp(1.35rem, 5vw, 1.75rem);
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .access-description {
+            color: var(--gray-600);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+        
+        .features {
+            background: white;
+            padding: 4rem 2rem;
+        }
+        
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-item {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .feature-icon {
+            font-size: clamp(2.5rem, 8vw, 3rem);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: clamp(1.1rem, 4vw, 1.25rem);
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .hero {
+                padding: 1.5rem 1rem;
+                min-height: auto;
+            }
+            
+            .hero-content {
+                padding: 2rem 0;
+            }
+            
+            .access-cards {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin-top: 2rem;
+            }
+            
+            .access-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .access-card:hover {
+                transform: translateY(-3px);
+            }
+            
+            .features {
+                padding: 2rem 1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .feature-item {
+                padding: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero {
+                padding: 1rem;
+            }
+            
+            .access-card {
+                padding: 1.5rem 1rem;
+            }
+            
+            .btn {
+                padding: 0.875rem 1.25rem;
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">🏋️ GymFlow</h1>
+            <p class="hero-subtitle">
+                El sistema de gestión más simple para tu gimnasio
+            </p>
+            
+            <div class="access-cards">
+                <!-- Acceso para Dueño/Admin -->
+                <div class="access-card">
+                    <div class="access-icon">👨‍💼</div>
+                    <h2 class="access-title">Administración</h2>
+                    <p class="access-description">
+                        Acceso para dueños y profesores. Gestiona alumnos, rutinas y marketing.
+                    </p>
+                    <a href="{{ url_for('login') }}" class="btn btn-primary btn-block">
+                        Ingresar como Admin
+                    </a>
+                </div>
+                
+                <!-- Acceso para Alumno -->
+                <div class="access-card">
+                    <div class="access-icon">💪</div>
+                    <h2 class="access-title">Soy Alumno</h2>
+                    <p class="access-description">
+                        Accede a tu rutina personalizada y estado de cuota en cualquier momento.
+                    </p>
+                    <a href="{{ url_for('alumno_login') }}" class="btn btn-primary btn-block">
+                        Ingresar como Alumno
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sección de características -->
+    <div class="features">
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">Control Total</h3>
+                <p style="color: var(--gray-600);">
+                    Ve todas tus métricas en tiempo real desde cualquier dispositivo
+                </p>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">📋</div>
+                <h3 class="feature-title">Rutinas Digitales</h3>
+                <p style="color: var(--gray-600);">
+                    Crea y comparte rutinas profesionales en minutos
+                </p>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">Alertas Automáticas</h3>
+                <p style="color: var(--gray-600);">
+                    El sistema te avisa cuando vencen cuotas o rutinas
+                </p>
+            </div>
+            
+            <div class="feature-item">
+                <div class="feature-icon">📱</div>
+                <h3 class="feature-title">Marketing Integrado</h3>
+                <p style="color: var(--gray-600);">
+                    Envía campañas segmentadas a tus alumnos
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="background: var(--gray-50); padding: 2rem; text-align: center; color: var(--gray-600);">
+        <p>🏋️ <strong>GymFlow</strong> - Haciendo los gimnasios más profesionales</p>
+        <p style="margin-top: 0.5rem; font-size: 0.85rem;">Sistema Beta v1.0 - 2026</p>
+    </div>
+</body>
+</html>

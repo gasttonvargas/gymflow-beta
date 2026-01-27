@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f172a">
+    <title>Preview Campaña - GymFlow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="{{ url_for('dashboard') }}" class="navbar-brand">🏋️ GymFlow</a>
+            <div class="navbar-user">
+                <span>{{ session.nombre }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary">Salir</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-narrow">
+        <div style="margin-bottom: 2rem;">
+            <a href="{{ url_for('marketing') }}" class="btn btn-secondary">← Volver a Marketing</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">👁️ Preview: {{ campana.titulo }}</h2>
+            </div>
+            
+            <div style="margin-bottom: 2rem;">
+                <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 0.25rem;">
+                            Tipo de Envío
+                        </p>
+                        <p style="font-weight: 600;">
+                            {% if campana.tipo == 'whatsapp' %}
+                                📱 WhatsApp
+                            {% elif campana.tipo == 'email' %}
+                                📧 Email
+                            {% else %}
+                                📬 SMS
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 0.25rem;">
+                            Destinatarios
+                        </p>
+                        <p style="font-weight: 600;">
+                            {% if campana.destinatarios == 'todos' %}
+                                👥 Todos los alumnos
+                            {% elif campana.destinatarios == 'vencidos' %}
+                                ❌ Solo Vencidos
+                            {% elif campana.destinatarios == 'activos' %}
+                                ✅ Solo Activos
+                            {% else %}
+                                ⚠️ Por Vencer
+                            {% endif %}
+                            ({{ destinatarios|length }} personas)
+                        </p>
+                    </div>
+                </div>
+                
+                <div style="background: var(--gray-50); padding: 1.5rem; border-radius: var(--radius-md); border-left: 4px solid var(--accent);">
+                    <p style="font-weight: 600; margin-bottom: 0.5rem; color: var(--primary);">
+                        Mensaje:
+                    </p>
+                    <p style="color: var(--gray-700); line-height: 1.6; white-space: pre-wrap;">{{ campana.mensaje }}</p>
+                </div>
+            </div>
+            
+            <hr style="margin: 2rem 0; border: none; border-top: 2px solid var(--gray-200);">
+            
+            <h3 style="margin-bottom: 1rem;">📋 Lista de Destinatarios ({{ destinatarios|length }})</h3>
+            
+            {% if destinatarios %}
+                <div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: var(--radius-md);">
+                    <table class="simple-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alumno in destinatarios %}
+                                <tr>
+                                    <td>{{ alumno.nombre }}</td>
+                                    <td>{{ alumno.telefono }}</td>
+                                    <td>
+                                        {% set estado = calcular_estado_alumno(alumno.fecha_vencimiento) %}
+                                        {% if estado == 'activo' %}
+                                            <span class="badge badge-success">Activo</span>
+                                        {% elif estado == 'por_vencer' %}
+                                            <span class="badge badge-warning">Por Vencer</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Vencido</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No hay destinatarios para este filtro</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Acciones -->
+        <div class="card" style="margin-top: 2rem; background: var(--gray-50);">
+            <h3 style="margin-bottom: 1rem;">🚀 Próximos Pasos</h3>
+            <p style="color: var(--gray-600); margin-bottom: 1rem;">
+                En la versión completa, desde acá podrías:
+            </p>
+            <ul style="color: var(--gray-700); line-height: 1.8; padding-left: 1.5rem; margin-bottom: 1.5rem;">
+                <li>✅ Enviar automáticamente por WhatsApp Business API</li>
+                <li>✅ Programar fecha y hora de envío</li>
+                <li>✅ Ver estadísticas de apertura y respuesta</li>
+                <li>✅ Reenviar a quienes no respondieron</li>
+            </ul>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="copiarMensaje()">
+                    📋 Copiar Mensaje
+                </button>
+                <a href="{{ url_for('marketing') }}" class="btn btn-secondary">
+                    Volver
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        function copiarMensaje() {
+            const mensaje = `{{ campana.mensaje }}`;
+            navigator.clipboard.writeText(mensaje).then(() => {
+                alert('✅ Mensaje copiado al portapapeles!\n\nAhora podés pegarlo en WhatsApp manualmente.');
+            });
+        }
+    </script>
+</body>
+</html>
