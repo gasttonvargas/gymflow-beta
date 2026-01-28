@@ -20,7 +20,7 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE = os.path.join(BASE_DIR, 'gymflow.db')
+DATABASE = '/tmp/gymflow.db'
 
 # ===============================
 # DB
