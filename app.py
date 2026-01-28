@@ -10,6 +10,7 @@ from datetime import datetime
 import sqlite3
 import secrets
 import os
+from functools import wraps
 
 # ===============================
 # APP
@@ -35,7 +36,6 @@ def init_db():
     conn = get_db()
     cursor = conn.cursor()
 
-    # Usuarios
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,7 +45,6 @@ def init_db():
         )
     """)
 
-    # Alumnos
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS alumnos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +55,6 @@ def init_db():
         )
     """)
 
-    # Usuario admin demo
     cursor.execute("SELECT * FROM usuarios WHERE username = 'admin'")
     if not cursor.fetchone():
         cursor.execute("""
@@ -64,7 +62,6 @@ def init_db():
             VALUES (?, ?, ?)
         """, ('admin', 'admin123', 'Administrador'))
 
-    # Alumnos demo
     cursor.execute("SELECT COUNT(*) FROM alumnos")
     if cursor.fetchone()[0] == 0:
         alumnos_demo = [
@@ -79,10 +76,6 @@ def init_db():
 
     conn.commit()
     conn.close()
-
-
-# 👉 IMPORTANTE PARA RENDER
-init_db()
 
 # ===============================
 # AUTH
@@ -118,14 +111,12 @@ def logout():
 
 
 def login_required(func):
-    from functools import wraps
     @wraps(func)
     def wrapper(*args, **kwargs):
         if 'user_id' not in session:
             return redirect(url_for('login'))
         return func(*args, **kwargs)
     return wrapper
-
 
 # ===============================
 # VIEWS
@@ -179,7 +170,6 @@ def nuevo_alumno():
     conn.close()
 
     return redirect(url_for('alumnos'))
-
 
 # ===============================
 # MAIN (solo local)
