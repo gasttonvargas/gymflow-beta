@@ -19,8 +19,8 @@ from functools import wraps
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE = '/tmp/gymflow.db'
+# En Render solo /tmp es escribible
+DATABASE = "/tmp/gymflow.db"
 
 # ===============================
 # DB
@@ -36,6 +36,7 @@ def init_db():
     conn = get_db()
     cursor = conn.cursor()
 
+    # Tabla usuarios
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,6 +46,7 @@ def init_db():
         )
     """)
 
+    # Tabla alumnos
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS alumnos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,13 +57,15 @@ def init_db():
         )
     """)
 
-    cursor.execute("SELECT * FROM usuarios WHERE username = 'admin'")
+    # Usuario admin demo
+    cursor.execute("SELECT 1 FROM usuarios WHERE username = 'admin'")
     if not cursor.fetchone():
         cursor.execute("""
             INSERT INTO usuarios (username, password, nombre)
             VALUES (?, ?, ?)
         """, ('admin', 'admin123', 'Administrador'))
 
+    # Alumnos demo
     cursor.execute("SELECT COUNT(*) FROM alumnos")
     if cursor.fetchone()[0] == 0:
         alumnos_demo = [
@@ -76,6 +80,13 @@ def init_db():
 
     conn.commit()
     conn.close()
+
+
+# ⚠️ IMPORTANTE EN RENDER
+# Se ejecuta una sola vez cuando la app ya está levantada
+@app.before_first_request
+def setup_database():
+    init_db()
 
 # ===============================
 # AUTH
